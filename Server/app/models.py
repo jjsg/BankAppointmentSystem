@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, TIME, ForeignKey
 from database import Base
 from sqlalchemy.orm import relationship
 
@@ -8,8 +8,8 @@ class Bank(Base):
     name = Column(String(50), nullable = False)
     locality = Column(String(100), nullable = False)
     city = Column(String(50), nullable = False)
-    start_time = Column(DateTime, nullable = False)
-    end_time = Column(DateTime, nullable = False)
+    start_time = Column(TIME(), nullable = False)
+    end_time = Column(TIME(), nullable = False)
     ifsc_code = Column(String(50), unique=True)
     password = Column(String(50), nullable = False)
 
@@ -31,7 +31,7 @@ class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable = False)
-    time = Column(DateTime, nullable = False)
+    time = Column(TIME(), nullable = False)
     appointment_id = Column(String(10), unique=True)
     bank_ifsc_code = Column(String(50), ForeignKey('bank.ifsc_code'), nullable=False)
 
