@@ -61,6 +61,12 @@ def login():
 
     return Response('logged in successfully', status=200)
 
+@app.route('/getBankDetails', methods = ['GET'])
+def bankDetails():
+    bank = Bank.query.filter_by(username=request.args.get('username')).first()
+    bank_json = as_dict(bank)
+
+    return Response(json.dumps(bank_json), status=200)
 
 
 
