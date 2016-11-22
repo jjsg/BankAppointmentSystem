@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, TIME, ForeignKey
 from database import Base
 from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Bank(Base):
     __tablename__ = 'bank'
@@ -11,21 +12,30 @@ class Bank(Base):
     start_time = Column(TIME(), nullable = False)
     end_time = Column(TIME(), nullable = False)
     ifsc_code = Column(String(50), unique=True)
-    password = Column(String(50), nullable = False)
+    password = Column(String(100), nullable = False)
+    username = Column(String(50), unique=True)
 
     ifsc = relationship('User', backref="bank")
 
-    def __init__(self, name=None, locality=None, city=None, start_time=None, end_time=None, ifsc_code=None, password=None):
+    def __init__(self, name=None, locality=None, city=None, start_time=None, end_time=None, 
+        ifsc_code=None, password=None, username=None):
         self.name = name
         self.locality = locality
         self.city = city
         self.start_time = start_time
         self.end_time = end_time
         self.ifsc_code = ifsc_code
-        self.password = password
+        self.set_password(password)
+        self.username = username
 
     def __repr__(self):
         return '<Bank %r>' % (self.name)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
 class User(Base):
     __tablename__ = 'user'

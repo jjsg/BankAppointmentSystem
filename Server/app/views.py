@@ -21,23 +21,48 @@ def as_dict(model_obj):
 
 @app.route('/addBank', methods = ['POST'])
 def addBank():
-    params = ['name', 'locality', 'city', 'ifsc_code', 'start_time', 'end_time', 'password']
+    params = ['name', 'locality', 'city', 'ifsc_code', 'start_time', 'end_time', 'password', 'username']
     for param in params:
         if request.form.get(param) is None:
             return Response(param + ' field is required', status=400)
 
     bank = Bank.query.filter_by(ifsc_code=request.form['ifsc_code']).first()
     if bank is not None:
-        return Response('Bank with the same ifsc code exists', status=400)
+        return Response('Bank with the same ifsc code already exists', status=400)
+
+    bank = Bank.query.filter_by(username=request.form['username']).first()
+    if bank is not None:
+        return Response('Bank with the same username already exists', status=400)
 
     bank = Bank(name=request.form['name'], locality=request.form['locality'], 
         city=request.form['city'], start_time=request.form['start_time'], end_time=request.form['end_time'],
-        ifsc_code=request.form['ifsc_code'], password=request.form['password'])
+        ifsc_code=request.form['ifsc_code'], password=request.form['password'], username=request.form['username'])
 
     session = db_session()
     session.add(bank)
     session.commit()
-    
+
     bank_json = as_dict(bank)
     return Response(json.dumps(bank_json), status=200)
+
+@app.route('/login', methods = ['POST'])
+def login():
+    if request.form.get('username') is None:
+        return Response(' username field is required', status=400)
+    if request.form.get('password') is None:
+        return Response('password field is required', status=400)
+    
+    bank = Bank.query.filter_by(username=request.form['username']).first()
+    if bank is None: 
+        return Response('Username doesnot exists', status=400)
+    else:
+        if not bank.check_password(request.form['password']):
+            return Response('Please enter correct password', status=400)
+
+    return Response('logged in successfully', status=200)
+
+
+
+
+
 
